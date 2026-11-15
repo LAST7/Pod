@@ -1,13 +1,13 @@
 {
     "name": "pod",
-    "version": "0.1.0",
-    "description": "A local-first personal AI companion, built for curiosity and fun.",
+    "version": "0.1.1",
+    "description": "A personal AI companion, built for curiosity and fun.",
     "scripts": {
         "build": "tsc",
-        "start": "node dist/main.js",
-        "start:development-prompt": "POD_PROFILE=development node dist/main.js",
         "dev": "APP_ENV=development POD_PROFILE=development tsx src/main.ts",
         "dev:production-prompt": "APP_ENV=development POD_PROFILE=production tsx src/main.ts",
+        "start": "APP_ENV=production node dist/main.js",
+        "start:dev-prompt": "APP_ENV=production POD_PROFILE=development node dist/main.js",
         "test": "vitest run",
         "test:watch": "vitest",
         "bin": {
@@ -25,6 +25,7 @@
     "dependencies": {
         "@earendil-works/pi-agent-core": "^1.5.2",
         "@earendil-works/pi-ai": "^1.5.2",
+        "@earendil-works/pi-tui": "^1.5.2",
         "better-sqlite3": "^13.2.0",
         "typebox": "^1.4.7"
     },

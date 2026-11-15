@@ -31,9 +31,9 @@ export function createToolCallLogger(db: Database): ToolCallLogger {
                 executed_at
             );
 
-            logger.info(`ToolCall recorded to table log_toolcall, result: ${result.changes}`);
+            logger.debug(`ToolCall recorded to table log_toolcall, result: ${result.changes}`);
         } catch (error: unknown) {
-            logger.error((error as Error).message);
+            logger.error(error);
             throw error;
         }
     };

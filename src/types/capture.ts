@@ -11,8 +11,7 @@ export interface Capture {
     raw_content: string;
     // Q: maybe this could be constrained to a limited type?
     source_type: string;
-    // Q: maybe bad decision?
-    created_at: string | null;
+    created_at: string;
 }
 
 export interface QueryCaptureOptions {

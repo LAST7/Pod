@@ -7,13 +7,7 @@ import { getBuiltinModel } from "@earendil-works/pi-ai/providers/all";
 import { loadSystemPrompt, type SystemPromptProfile } from "#agent/systemPrompt.js";
 import { logger } from "#utils/logger.js";
 
-import type { ToolCallLogger } from "#types/tools.js";
-
-export async function startAgentLoop(
-    tools: Array<AgentTool>,
-    toolCallLogger: ToolCallLogger,
-    profile?: SystemPromptProfile
-) {
+export function createAgent(tools: Array<AgentTool>, profile?: SystemPromptProfile): Agent {
     logger.info("Starting agent loop...");
 
     const agent = new Agent({
@@ -28,26 +22,5 @@ export async function startAgentLoop(
         streamFn: (model, context, options) => streamSimple(model, context, options)
     });
 
-    agent.subscribe((event) => {
-        if (event.type === "message_update") {
-            const update = event.assistantMessageEvent;
-            if (update.type === "text_delta") process.stdout.write(update.delta);
-        } else if (event.type === "tool_execution_start") {
-            if (!agent.sessionId) logger.error("Session id is not set.");
-
-            toolCallLogger(
-                agent.sessionId ?? "<unknown>",
-                event.toolCallId,
-                event.toolName,
-                event.args
-            );
-            logger.info(`Running tool call ${event.toolCallId}: ${event.toolName}`);
-        } else if (event.type === "tool_execution_end") {
-            logger.info(`Finished tool call ${event.toolCallId}: ${event.toolName}`);
-        } else if (event.type === "agent_end") {
-            console.log("\n");
-        }
-    });
-
-    // TODO: interactive cli conversation
+    return agent;
 }

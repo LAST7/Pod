@@ -3,10 +3,13 @@ import { describe, expect, it, vi } from "vitest";
 import { createWriteCaptureTool } from "#tools/writeCapture.js";
 import type { PodStore } from "#types/store.js";
 
+const UTC_MILLIS = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+
 function createStore(): PodStore {
     return {
         queryTasks: vi.fn(() => []),
         queryTaskById: vi.fn(() => []),
+        queryTasksInPeriod: vi.fn(() => []),
         queryCaptures: vi.fn(() => []),
         queryCaptureById: vi.fn(() => []),
         writeCapture: vi.fn(),
@@ -25,7 +28,7 @@ describe("write_capture tool", () => {
         expect(vi.mocked(store.writeCapture).mock.calls[0]![0]).toMatchObject({
             raw_content: "Remember this.",
             source_type: "text",
-            created_at: null
+            created_at: expect.stringMatching(UTC_MILLIS)
         });
         expect(result.isError).not.toBe(true);
     });

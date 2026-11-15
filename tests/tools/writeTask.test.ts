@@ -5,10 +5,13 @@ import { TaskStatus, TimeScope } from "#types/task.js";
 import { SourceType } from "#types/capture.js";
 import type { PodStore } from "#types/store.js";
 
+const UTC_MILLIS = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+
 function createStore(): PodStore {
     return {
         queryTasks: vi.fn(() => []),
         queryTaskById: vi.fn(() => []),
+        queryTasksInPeriod: vi.fn(() => []),
         queryCaptures: vi.fn(() => []),
         queryCaptureById: vi.fn(() => []),
         writeCapture: vi.fn(),
@@ -32,7 +35,7 @@ describe("write_task tool", () => {
         expect(capture).toMatchObject({
             raw_content: "I should file the report.",
             source_type: SourceType.Text,
-            created_at: null
+            created_at: expect.stringMatching(UTC_MILLIS)
         });
         expect(capture.id).toMatch(/^[0-9a-f-]{36}$/i);
         expect(task).toMatchObject({
@@ -42,7 +45,7 @@ describe("write_task tool", () => {
             time_scope: TimeScope.Day,
             start_date: null,
             due_date: null,
-            created_at: null
+            created_at: capture.created_at
         });
         expect(task.id).toMatch(/^[0-9a-f-]{36}$/i);
         expect(result.isError).not.toBe(true);
@@ -70,7 +73,7 @@ describe("write_task tool", () => {
         expect(store.writeTaskWithCapture).not.toHaveBeenCalled();
     });
 
-    it("returns a tool error when the store write fails", async () => {
+    it("rethrows store write failures", async () => {
         const store = createStore();
         vi.mocked(store.writeTaskWithCapture).mockImplementation(() => {
             throw new Error("write failed");

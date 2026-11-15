@@ -25,17 +25,22 @@ describe("SQLite CaptureStore", () => {
 
     afterEach(() => db.close());
 
-    it("writes and retrieves a capture by id", () => {
+    it("writes and retrieves a capture by id with its created_at", () => {
         const store = createSqliteCaptureStore(db);
         store.writeCapture({
             id: "capture-1",
             raw_content: "Keep this note",
             source_type: "text",
-            created_at: null
+            created_at: "2026-01-01T00:00:00.000Z"
         });
 
         expect(store.queryCaptureById("capture-1")).toMatchObject([
-            { id: "capture-1", raw_content: "Keep this note", source_type: "text" }
+            {
+                id: "capture-1",
+                raw_content: "Keep this note",
+                source_type: "text",
+                created_at: "2026-01-01T00:00:00.000Z"
+            }
         ]);
         expect(store.queryCaptureById("missing")).toEqual([]);
     });

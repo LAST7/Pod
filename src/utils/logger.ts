@@ -1,3 +1,5 @@
+import { format } from "node:util";
+
 type LogLevel = "debug" | "info" | "warn" | "error";
 
 const levels: Record<LogLevel, number> = {
@@ -12,7 +14,7 @@ const configuredLevel = process.env.LOG_LEVEL?.toLowerCase();
 const minLevel: number =
     configuredLevel && configuredLevel in levels
         ? levels[configuredLevel as LogLevel]
-        : process.env.NODE_ENV === "production"
+        : process.env.APP_ENV === "production"
           ? levels.info
           : levels.debug;
 
@@ -27,12 +29,27 @@ const colors: Record<LogLevel, string> = {
 
 const reset = "\x1b[0m";
 
+type LogSink = (line: string) => void;
+let sink: LogSink | undefined;
+
+// While set, log lines go to `next` instead of stderr. Used by the dev TUI,
+// which owns the terminal and must not be written to directly.
+export function setLogSink(next: LogSink | undefined): void {
+    sink = next;
+}
+
 function log(level: LogLevel, ...args: unknown[]): void {
     if (levels[level] < minLevel) return;
 
     const timestamp = new Date().toISOString();
     const label = `[${timestamp}] [${level.toUpperCase()}]`;
+
     const prefix = useColor ? `${colors[level]}${label}${reset}` : label;
+
+    if (sink) {
+        sink(`${prefix} ${format(...args)}`);
+        return;
+    }
 
     console.error("\n", prefix, ...args);
 }

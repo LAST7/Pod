@@ -1,11 +1,12 @@
 import { AgentTool } from "@earendil-works/pi-agent-core";
+import { Type } from "typebox";
 
 export function createGetTimeTool(): AgentTool<{}> {
     return {
         name: "get_time",
         label: "get both UTC and local time with timezone.",
         description: "",
-        parameters: {},
+        parameters: Type.Object({}),
 
         async execute() {
             const now = Temporal.Now;

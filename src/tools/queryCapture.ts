@@ -76,7 +76,7 @@ export function createQueryCaptureTool(store: PodStore): AgentTool<typeof QueryS
             if (!Value.Check(QuerySchema, params)) {
                 const errResult = makeTypeErrToolResult(QuerySchema, params);
                 logger.error(
-                    `Query tool called for table=Captures with invalid parameter(s): ${(errResult.content[0] as TextContent).text}`
+                    `<queryCapture> called with invalid parameter(s): ${(errResult.content[0] as TextContent).text}`
                 );
                 return errResult;
             }
@@ -88,7 +88,7 @@ export function createQueryCaptureTool(store: PodStore): AgentTool<typeof QueryS
             const source_type = params.sourceType;
 
             logger.info(
-                `Query tool called for table=Captures with id=${id}, limit=${limit}, before=${before}, after=${after}, source_type=${source_type}`
+                `[Toolcall Execution] <queryCapture> starts with id=${id}, limit=${limit}, before=${before}, after=${after}, source_type=${source_type}`
             );
 
             try {

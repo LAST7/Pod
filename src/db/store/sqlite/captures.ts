@@ -56,11 +56,9 @@ export function createSqliteCaptureStore(db: Database): CaptureStore {
         },
 
         writeCapture(capture: Capture) {
-            db.prepare("INSERT INTO captures (id, raw_content, source_type) VALUES (?, ?, ?)").run(
-                capture.id,
-                capture.raw_content,
-                capture.source_type
-            );
+            db.prepare(
+                "INSERT INTO captures (id, raw_content, source_type, created_at) VALUES (?, ?, ?, ?)"
+            ).run(capture.id, capture.raw_content, capture.source_type, capture.created_at);
         }
     };
 }

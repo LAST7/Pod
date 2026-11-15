@@ -32,7 +32,7 @@ export function createWriteCaptureTool(store: PodStore): AgentTool<typeof WriteC
             if (!Value.Check(WriteCaptureSchema, params)) {
                 const errResult = makeTypeErrToolResult(WriteCaptureSchema, params);
                 logger.error(
-                    `Write tool called for 'Captures' with invalid parameter(s): ${(errResult.content[0] as TextContent).text}`
+                    `<writeCapture> called with invalid parameter(s): ${(errResult.content[0] as TextContent).text}`
                 );
                 return errResult;
             }
@@ -41,9 +41,10 @@ export function createWriteCaptureTool(store: PodStore): AgentTool<typeof WriteC
             const rawContent = params.rawContent.trim();
             if (!rawContent) throw new Error("Raw content cannot be empty or whitespace.");
             const sourceType = params.sourceType ?? SourceType.Text;
+            const createdAt = Temporal.Now.instant().toString({ fractionalSecondDigits: 3 });
 
             logger.info(
-                `WriteCapture tool called: captureId: ${captureId}, sourceType: ${sourceType}`
+                `[Toolcall Execution] <WriteCapture> starts with captureId=${captureId}, sourceType=${sourceType}`
             );
 
             try {
@@ -51,8 +52,7 @@ export function createWriteCaptureTool(store: PodStore): AgentTool<typeof WriteC
                     id: captureId,
                     raw_content: rawContent,
                     source_type: sourceType,
-                    // Q: maybe bad decision?
-                    created_at: null // Handled by SQLite
+                    created_at: createdAt
                 });
 
                 return {

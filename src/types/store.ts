@@ -1,11 +1,12 @@
 import { UUID } from "node:crypto";
 
 import { Capture, QueryCaptureOptions } from "#types/capture.js";
-import { QueryTaskOptions, Task } from "#types/task.js";
+import { QueryTaskOptions, Task, TaskPeriodOptions } from "#types/task.js";
 
 export interface PodStore {
     queryTasks(options: QueryTaskOptions): Array<Task>;
     queryTaskById(id: UUID): Array<Task>;
+    queryTasksInPeriod(options: TaskPeriodOptions): Array<Task>;
     queryCaptures(options: QueryCaptureOptions): Array<Capture>;
     queryCaptureById(id: UUID): Array<Capture>;
     writeCapture(capture: Capture): void;
@@ -15,8 +16,9 @@ export interface PodStore {
 }
 
 export interface TaskStore {
-    queryTaskById(id: UUID): Array<Task>;
     queryTasks(options: QueryTaskOptions): Array<Task>;
+    queryTaskById(id: UUID): Array<Task>;
+    queryTasksInPeriod(options: TaskPeriodOptions): Array<Task>;
     writeTaskWithCapture(capture: Capture, task: Task): void;
 }
 

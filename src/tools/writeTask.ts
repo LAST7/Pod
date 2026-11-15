@@ -63,7 +63,7 @@ export function createWriteTaskTool(store: PodStore): AgentTool<typeof WriteTask
             if (!Value.Check(WriteTaskSchema, params)) {
                 const errResult = makeTypeErrToolResult(WriteTaskSchema, params);
                 logger.error(
-                    `Write tool called for table=Captures&Tasks with invalid parameter(s): ${(errResult.content[0] as TextContent).text}`
+                    `<writeTask> tool called with invalid parameter(s): ${(errResult.content[0] as TextContent).text}`
                 );
                 return errResult;
             }
@@ -83,11 +83,13 @@ export function createWriteTaskTool(store: PodStore): AgentTool<typeof WriteTask
 
             const description = params.description ? params.description.trim() : "";
             const timeScope = params.timeScope ?? TimeScope.Day;
+
             // QUESTION: Do we accept passed date as start/due date?
             const { startDate, dueDate } = params;
+            const createdAt = Temporal.Now.instant().toString({ fractionalSecondDigits: 3 });
 
             logger.info(
-                `WriteTask tool called: title: ${title}, captureId: ${captureId}, taskId: ${taskId}, sourceType: ${sourceType}`
+                `[Toolcall Execution] <writeTask> starts with title=${title}, captureId=${captureId}, taskId=${taskId}, sourceType=${sourceType}`
             );
 
             try {
@@ -96,8 +98,7 @@ export function createWriteTaskTool(store: PodStore): AgentTool<typeof WriteTask
                         id: captureId,
                         raw_content: rawContent,
                         source_type: sourceType,
-                        // Q: maybe bad decision?
-                        created_at: null
+                        created_at: createdAt
                     },
                     {
                         id: taskId,
@@ -107,7 +108,7 @@ export function createWriteTaskTool(store: PodStore): AgentTool<typeof WriteTask
                         time_scope: timeScope,
                         start_date: startDate ?? null,
                         due_date: dueDate ?? null,
-                        created_at: null
+                        created_at: createdAt
                     }
                 );
 

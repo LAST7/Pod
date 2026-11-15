@@ -17,7 +17,7 @@ const QuerySchema = Type.Object(
             Type.String({
                 format: "uuid",
                 description:
-                    "The exact uuid of the target task. Fallback to parameter query if provided malformed task id."
+                    "The exact uuid of the target task. Optional. Fallback to parameter query if not provided."
             })
         ),
         title: Type.Optional(
@@ -29,18 +29,6 @@ const QuerySchema = Type.Object(
         status: Type.Optional(
             Type.Enum(TaskStatus, {
                 description: "Status of the target task, leave it empty for any status."
-            })
-        ),
-        before: Type.Optional(
-            Type.String({
-                format: "date-time",
-                description: "Latest date time of target tasks. Inclusive. Can be empty."
-            })
-        ),
-        after: Type.Optional(
-            Type.String({
-                format: "date-time",
-                description: "Earliest date time of target tasks. Inclusive. Can be empty."
             })
         ),
         limit: Type.Optional(
@@ -84,16 +72,16 @@ function formatTask(task: Task): { type: "text"; text: string } {
 export function createQueryTaskTool(store: PodStore): AgentTool<typeof QuerySchema> {
     return {
         name: "query_task",
-        label: "query database",
+        label: "query database for tasks",
         description:
-            "Inspect stored captures, tasks, or task dependencies using predefined read-only queries. You cannot provide SQL",
+            "Inspect general stored tasks, or task dependencies using predefined read-only queries. You cannot provide SQL.",
         parameters: QuerySchema,
 
         async execute(_toolCallId, params: unknown) {
             if (!Value.Check(QuerySchema, params)) {
                 const errResult = makeTypeErrToolResult(QuerySchema, params);
                 logger.error(
-                    `Query tool called for table=Tasks with invalid parameter(s): ${(errResult.content[0] as TextContent).text}`
+                    `<queryTask/queryTaskById> tool called with invalid parameter(s): ${(errResult.content[0] as TextContent).text}`
                 );
                 return errResult;
             }
@@ -101,12 +89,10 @@ export function createQueryTaskTool(store: PodStore): AgentTool<typeof QuerySche
             const id = params.id;
             const title = params.title;
             const limit = params.limit ?? 20;
-            const before = params.before;
-            const after = params.after;
             const status = params.status;
 
             logger.info(
-                `Query tool called for table=Tasks with id=${id}, title=${title}, limit=${limit}, before=${before}, after=${after}, status=${status}`
+                `[Toolcall Execution] <${id ? "queryTaskById" : "queryTask"}> starts with id=${id}, title=${title}, limit=${limit}, status=${status}`
             );
 
             try {
@@ -116,8 +102,6 @@ export function createQueryTaskTool(store: PodStore): AgentTool<typeof QuerySche
                     : store.queryTasks({
                           title,
                           status,
-                          before,
-                          after,
                           limit
                       });
                 return {

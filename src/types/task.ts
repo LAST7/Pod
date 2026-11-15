@@ -23,13 +23,17 @@ export interface Task {
     time_scope: TimeScope;
     start_date: string | null;
     due_date: string | null;
-    created_at: string | null;
+    created_at: string;
 }
 
 export interface QueryTaskOptions {
     title?: string;
     status?: string;
-    before?: string;
-    after?: string;
+    limit?: number;
+}
+
+export interface TaskPeriodOptions {
+    start: string;
+    end: string;
     limit?: number;
 }
